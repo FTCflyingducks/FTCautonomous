@@ -69,7 +69,7 @@ public class Auto extends LinearOpMode {
     private ElapsedTime     runtime = new ElapsedTime();
 
 
-    static final double     FORWARD_SPEED = 0.5;
+    static final double     FORWARD_SPEED = 0.2;
     static final double     TURN_SPEED    = 0.5;
 
     @Override
@@ -115,7 +115,7 @@ public class Auto extends LinearOpMode {
         leftDrive.setPower(FORWARD_SPEED);
         rightDrive.setPower(FORWARD_SPEED);
         leftFront.setPower(FORWARD_SPEED);
-        rightDrive.setPower(FORWARD_SPEED);
+        rightFront.setPower(FORWARD_SPEED);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 8.0)) {
             telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
