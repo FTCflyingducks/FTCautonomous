@@ -12,8 +12,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
          if (red = 1){ 
              duckSpinner.setDirection(DcMotor.Direction.FORWARD);
              
-         else;
+         else;{
             duckSpinner.setDirection(DcMotor.Direction.FORWARD);
+         }
         duckSpinner.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         duckSpinner.setPower(FORWARD_SPEED);
         while (opModeIsActive() && (runtime.seconds() < 1.0)){
