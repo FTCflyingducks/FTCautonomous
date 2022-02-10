@@ -1,147 +1,61 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+package org.firstinspires.ftc.teamcode;
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.robot.Robot;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import java.util.Map;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-/**
- * This file illustrates the concept of driving a path based on time.
- * It uses the common Pushbot hardware class to define the drive on the robot.
- * The code is structured as a LinearOpMode
- *
- * The code assumes that you do NOT have encoders on the wheels,
- *   otherwise you would use: PushbotAutoDriveByEncoder;
- *
- *   The desired path in this example is:
- *   - Drive forward for 3 seconds
- *   - Spin right for 1.3 seconds
- *   - Drive Backwards for 1 Second
- *   - Stop and close the claw.
- *
- *  The code is written in a simple form with no optimizations.
- *  However, there are several ways that this type of sequence could be streamlined,
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
+@Autonomous(name = "auto", group = "Auto")
 
-@Autonomous(name="Auto", group="Autonomous")
-public class Auto extends LinearOpMode {
-
-    /* Declare OpMode members. */
-    public DcMotor  leftDrive   = null;
-    public DcMotor  rightDrive  = null;
-    public DcMotor  leftFront    = null;
-    public DcMotor  rightFront   = null;
+public class Auto extends LinearOpMode{
+    private DcMotor backLeftMotor;
+    private DcMotor backRightMotor; 
+    private DcMotor frontLeftMotor;
+    private DcMotor frontRightMotor;
+    private DcMotor duckSpinner;
+    static double BLUE_SPEED = 0.7;
+    static double RED_SPEED = -0.7;
+    static double DUCK_SPEED = 0.4;
     private ElapsedTime     runtime = new ElapsedTime();
-
-
-    static final double     FORWARD_SPEED = 0.2;
-    static final double     TURN_SPEED    = 0.5;
-
-    @Override
     public void runOpMode() {
-
-        /*
-         * Initialize the drive system variables.
-         * The init() method of the hardware class does all the work here
-         */
-        // Define and Initialize Motors
-        leftDrive  = hardwareMap.get(DcMotor.class, "bl");
-        rightDrive = hardwareMap.get(DcMotor.class, "br");
-        rightFront = hardwareMap.get(DcMotor.class, "fr");
-        leftFront  = hardwareMap.get(DcMotor.class, "fl");
-        leftDrive.setDirection(DcMotor.Direction.FORWARD); 
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-
-        // Set all motors to zero power
-        leftDrive.setPower(0);
-        rightDrive.setPower(0);
-        rightFront.setPower(0);
-        leftFront.setPower(0);
-        
-        // Set all motors to run without encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
-        leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Ready to run");    //
-        telemetry.update();
-
-        // Wait for the game to start (driver presses PLAY)
+        backLeftMotor = hardwareMap.get(DcMotor.class, "bl");
+        frontLeftMotor = hardwareMap.get(DcMotor.class, "fl");
+        frontRightMotor = hardwareMap.get(DcMotor.class, "fr");
+        backRightMotor = hardwareMap.get(DcMotor.class, "br");
+        duckSpinner  = hardwareMap.get(DcMotor.class, "dusp");
+        duckSpinner.setDirection(DcMotor.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotor.Direction.FORWARD);
+        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotor.Direction.FORWARD);
+        frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
         waitForStart();
-
-        // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
-
-        // Step 1:  Drive forward for 3 seconds
-        leftDrive.setPower(FORWARD_SPEED);
-        rightDrive.setPower(FORWARD_SPEED);
-        leftFront.setPower(FORWARD_SPEED);
-        rightFront.setPower(FORWARD_SPEED);
-        runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 8.0)) {
-            telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        // Step 2:  Spin right for 1.3 seconds
-//        robot.leftDrive.setPower(TURN_SPEED);
-//        robot.rightDrive.setPower(-TURN_SPEED);
-//        runtime.reset();
-//        while (opModeIsActive() && (runtime.seconds() < 1.3)) {
-//            telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
-//            telemetry.update();
-//        }
-
-        // Step 3:  Drive Backwards for 1 Second
-//        robot.leftDrive.setPower(-FORWARD_SPEED);
-//        robot.rightDrive.setPower(-FORWARD_SPEED);
-//        runtime.reset();
-//        while (opModeIsActive() && (runtime.seconds() < 1.0)) {
-//            telemetry.addData("Path", "Leg 3: %2.5f S Elapsed", runtime.seconds());
-//            telemetry.update();
-//        }
-
-        telemetry.addData("Path", "Complete");
+        telemetry.addData("Path", "Running - " + 0.5);
         telemetry.update();
-        sleep(1000);
-    }
-}
+        while (opModeIsActive() &&runtime.seconds()<5){
+            frontLeftMotor.setPower(BLUE_SPEED);
+            backLeftMotor.setPower(BLUE_SPEED);
+            frontRightMotor.setPower(RED_SPEED);
+            backRightMotor.setPower(RED_SPEED);
+            while (opModeIsActive() && runtime.seconds()>3 & runtime.seconds()<5){
+                frontLeftMotor.setPower(RED_SPEED);
+                backLeftMotor.setPower(BLUE_SPEED);
+                frontRightMotor.setPower(RED_SPEED);
+                backRightMotor.setPower(BLUE_SPEED);
+                while (opModeIsActive() && runtime.seconds()>3.2 & runtime.seconds()<5.4){
+                    frontLeftMotor.setPower(-0.07);
+                    backLeftMotor.setPower(0.07);
+                    frontRightMotor.setPower(-0.07);
+                    backRightMotor.setPower(0.07);
+                    duckSpinner.setPower(DUCK_SPEED);
+                    
+                        while (opModeIsActive() && runtime.seconds()>5.3 & runtime.seconds()<6.272){
+                            frontLeftMotor.setPower(0.47);
+                            backLeftMotor.setPower(-0.47);
+                            frontRightMotor.setPower(0.47);
+                            backRightMotor.setPower(-0.47);
+                }
+            }
+        }
+    }}}
+        
